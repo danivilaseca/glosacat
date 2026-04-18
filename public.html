@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Glosa.cat · En Directe</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #090c10;
+  --surface: #111520;
+  --surface2: #181e2c;
+  --border: rgba(255,255,255,0.07);
+  --text: #e8eaf0;
+  --muted: rgba(232,234,240,0.35);
+  --gold: #f5c842;
+  --gold-bright: #ffe06e;
+  --gold-dim: rgba(245,200,66,0.12);
+  --silver: #c0c8d8;
+  --bronze: #cd884a;
+  --accent: #e05c3a;
+  --green: #3db87a;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden;}
+
+body::before{content:'';position:fixed;inset:0;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(245,200,66,0.07) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 110%, rgba(74,158,255,0.04) 0%, transparent 60%);
+  pointer-events:none;z-index:0;}
+
+/* HEADER */
+header{text-align:center;padding:3.5rem 2rem 2rem;position:relative;z-index:1;}
+
+.live-pill{display:inline-flex;align-items:center;gap:.5rem;background:rgba(224,92,58,.1);border:1px solid rgba(224,92,58,.22);color:#e07070;font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;padding:.28rem .85rem;border-radius:20px;margin-bottom:1.6rem;}
+.live-dot{width:6px;height:6px;background:#ff5555;border-radius:50%;animation:pulse 1.3s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.3;transform:scale(.6);}}
+
+h1{font-family:'DM Serif Display',serif;font-size:clamp(3.5rem,9vw,7rem);font-weight:400;color:var(--gold-bright);line-height:.95;letter-spacing:-.01em;}
+h1 em{font-style:italic;color:rgba(245,200,66,.45);font-size:55%;}
+
+.divider{display:flex;align-items:center;justify-content:center;gap:1.5rem;margin:1.8rem auto;max-width:160px;}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:rgba(245,200,66,.2);}
+.divider-icon{color:rgba(245,200,66,.35);font-size:.9rem;}
+
+.round-info{font-size:.82rem;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;}
+.round-info strong{color:var(--gold);font-family:'DM Serif Display',serif;font-size:1.05rem;font-weight:400;}
+
+/* FB STATUS */
+.fb-pill{display:inline-flex;align-items:center;gap:.4rem;font-size:.65rem;color:var(--muted);letter-spacing:.08em;margin-top:.8rem;}
+.fb-dot-pub{width:6px;height:6px;border-radius:50%;background:#444;transition:background .3s;}
+.fb-dot-pub.ok{background:var(--green);}
+.fb-dot-pub.err{background:var(--accent);}
+
+/* LEADERBOARD */
+.leaderboard{max-width:860px;margin:0 auto;padding:0 1.5rem 6rem;position:relative;z-index:1;}
+
+.entry{
+  display:grid;
+  grid-template-columns:3.2rem 1fr auto;
+  align-items:center;
+  gap:1rem;
+  padding:1.1rem 1.4rem;
+  margin-bottom:.65rem;
+  border-radius:10px;
+  border:1px solid var(--border);
+  background:var(--surface);
+  transition:all .6s cubic-bezier(.4,0,.2,1);
+  animation:slideIn .45s ease both;
+  position:relative;
+  overflow:hidden;
+}
+.entry::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:transparent;}
+.entry.r1{background:linear-gradient(135deg,rgba(245,200,66,.07) 0%,var(--surface) 60%);border-color:rgba(245,200,66,.18);}
+.entry.r1::before{background:var(--gold);}
+.entry.r2{border-color:rgba(192,200,216,.1);}
+.entry.r2::before{background:var(--silver);}
+.entry.r3{border-color:rgba(205,136,74,.1);}
+.entry.r3::before{background:var(--bronze);}
+
+@keyframes slideIn{from{opacity:0;transform:translateX(-14px);}to{opacity:1;transform:translateX(0);}}
+
+.rank-num{font-family:'DM Serif Display',serif;font-size:1.5rem;text-align:center;color:var(--muted);}
+.r1 .rank-num{color:var(--gold-bright);font-size:1.9rem;}
+.r2 .rank-num{color:var(--silver);}
+.r3 .rank-num{color:var(--bronze);}
+
+.entry-name{font-family:'DM Serif Display',serif;font-size:clamp(1.3rem,3vw,1.75rem);color:var(--text);line-height:1.1;}
+.r1 .entry-name{color:var(--gold-bright);}
+.entry-meta{font-size:.73rem;color:var(--muted);margin-top:.22rem;display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;}
+.meta-pill{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:.1rem .4rem;font-size:.7rem;}
+
+.entry-right{text-align:right;}
+.score-num{font-family:'DM Serif Display',serif;font-size:clamp(2rem,5vw,3rem);color:var(--gold);line-height:1;}
+.r1 .score-num{color:var(--gold-bright);font-size:clamp(2.2rem,5.5vw,3.4rem);}
+.score-pts{font-size:.68rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;}
+
+.bar-row{grid-column:1/-1;height:2px;background:rgba(255,255,255,.04);border-radius:2px;overflow:hidden;margin-top:.25rem;}
+.bar-fill{height:100%;border-radius:2px;background:linear-gradient(to right,rgba(245,200,66,.25),var(--gold));transition:width 1.2s cubic-bezier(.4,0,.2,1);}
+.r1 .bar-fill{background:linear-gradient(to right,rgba(245,200,66,.4),var(--gold-bright));}
+
+/* WAITING */
+.waiting{text-align:center;padding:5rem 2rem;}
+.waiting-icon{font-size:2.5rem;margin-bottom:1.2rem;opacity:.2;}
+.waiting-title{font-family:'DM Serif Display',serif;font-size:1.6rem;color:rgba(232,234,240,.25);font-style:italic;margin-bottom:.4rem;}
+.waiting-sub{font-size:.83rem;color:rgba(232,234,240,.13);letter-spacing:.1em;}
+
+/* FOOTER */
+footer{position:fixed;bottom:0;width:100%;text-align:center;padding:1.2rem;background:linear-gradient(transparent,rgba(9,12,16,.98));z-index:10;}
+.footer-txt{font-size:.66rem;color:rgba(232,234,240,.13);letter-spacing:.1em;}
+</style>
+</head>
+<body>
+<header>
+  <div class="live-pill"><div class="live-dot"></div> En directe</div>
+  <h1>Glosa<em>.cat</em></h1>
+  <div class="divider"><span class="divider-icon">✦</span></div>
+  <div class="round-info" id="round-info">Connectant…</div>
+  <div class="fb-pill">
+    <div class="fb-dot-pub" id="fb-dot-pub"></div>
+    <span id="fb-label-pub">Connectant a Firebase…</span>
+  </div>
+</header>
+
+<div class="leaderboard" id="leaderboard">
+  <div class="waiting">
+    <div class="waiting-icon">🎶</div>
+    <div class="waiting-title">El concurs aviat començarà</div>
+    <div class="waiting-sub">Les puntuacions apareixeran aquí en temps real</div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-txt" id="last-update">—</div>
+</footer>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyA5tGiiJJI8TbgVTlXWjjFfdiOCA5VAl6o",
+  authDomain: "glosacat.firebaseapp.com",
+  databaseURL: "https://glosacat-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "glosacat",
+  storageBucket: "glosacat.firebasestorage.app",
+  messagingSenderId: "699567100913",
+  appId: "1:699567100913:web:b0ee8f3a133e3a319dea50"
+};
+
+const MELODY_LABELS = {
+  jota:'🎵 Jota', marxa:'🥁 Marxa', bolero:'🌀 Bolero',
+  fandango:'🎸 Fandango', canco:'🎶 Cançó', corrandes:'🪗 Corrandes', lliure:'✨ Lliure'
+};
+
+const app = initializeApp(firebaseConfig);
+const db  = getDatabase(app);
+const dbRef = ref(db, 'concurs');
+
+function setFbStatus(ok, label) {
+  const dot = document.getElementById('fb-dot-pub');
+  const lbl = document.getElementById('fb-label-pub');
+  dot.className = 'fb-dot-pub ' + (ok ? 'ok' : 'err');
+  lbl.textContent = label;
+}
+
+function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function getTot(id, rounds) {
+  return (rounds||[]).reduce((s,r) => {
+    const x = r.scores && r.scores.find(x => x.id === id);
+    return s + (x ? x.total : 0);
+  }, 0);
+}
+
+function getMelody(id, rounds) {
+  const last = [...(rounds||[])].reverse().find(r => r.scores && r.scores.find(x => x.id === id && x.melody));
+  if (!last) return '';
+  const sc = last.scores.find(x => x.id === id);
+  return sc && sc.melody ? (MELODY_LABELS[sc.melody] || sc.melody) : '';
+}
+
+function getRoundPills(id, rounds) {
+  return (rounds||[]).map(r => {
+    const s = r.scores && r.scores.find(x => x.id === id);
+    return `<span class="meta-pill">R${r.round}: ${s ? s.total : '—'}</span>`;
+  }).join('');
+}
+
+function render(data) {
+  const lb = document.getElementById('leaderboard');
+  const ri = document.getElementById('round-info');
+  const lu = document.getElementById('last-update');
+
+  if (!data || !data.participants || !data.participants.length) {
+    lb.innerHTML = `<div class="waiting">
+      <div class="waiting-icon">🎶</div>
+      <div class="waiting-title">El concurs aviat començarà</div>
+      <div class="waiting-sub">Les puntuacions apareixeran aquí en temps real</div>
+    </div>`;
+    ri.textContent = 'Esperant participants…';
+    return;
+  }
+
+  const rounds = data.rounds || [];
+
+  if (!rounds.length) {
+    lb.innerHTML = `<div class="waiting">
+      <div class="waiting-icon">🎙</div>
+      <div class="waiting-title">Els participants s'estan preparant</div>
+      <div class="waiting-sub">${data.participants.length} participants inscrits · Ronda 1 pendent</div>
+    </div>`;
+    ri.textContent = data.participants.length + ' participants inscrits';
+    return;
+  }
+
+  const ranked = [...data.participants].map(p => ({
+    ...p,
+    total: getTot(p.id, rounds),
+    melody: getMelody(p.id, rounds),
+    pills: getRoundPills(p.id, rounds)
+  })).sort((a,b) => b.total - a.total);
+
+  const mx = ranked[0].total || 1;
+  const doneRounds = rounds.map(r => r.round).join(', ');
+  ri.innerHTML = `Rondes completades: <strong>${doneRounds}</strong>`;
+
+  lb.innerHTML = ranked.map((p, i) => {
+    const cls = i===0?'r1':i===1?'r2':i===2?'r3':'';
+    const medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1);
+    const pct = Math.round(p.total / mx * 100);
+    return `<div class="entry ${cls}" style="animation-delay:${i*.07}s">
+      <div class="rank-num">${medal}</div>
+      <div>
+        <div class="entry-name">${esc(p.name)}</div>
+        <div class="entry-meta">
+          ${p.melody ? `<span class="meta-pill">${p.melody}</span>` : ''}
+          ${p.pills}
+        </div>
+      </div>
+      <div class="entry-right">
+        <div class="score-num">${p.total}</div>
+        <div class="score-pts">punts</div>
+      </div>
+      <div class="bar-row"><div class="bar-fill" style="width:${pct}%"></div></div>
+    </div>`;
+  }).join('');
+
+  const now = new Date();
+  const hm = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0') + ':' + now.getSeconds().toString().padStart(2,'0');
+  lu.textContent = `Darrera actualització: ${hm}`;
+}
+
+// ── Real-time listener ────────────────────────────────────────────────────
+onValue(dbRef, snap => {
+  setFbStatus(true, 'Connectat · actualització en temps real');
+  render(snap.val());
+}, err => {
+  setFbStatus(false, 'Error de connexió');
+  document.getElementById('round-info').textContent = 'Error de connexió. Recarrega la pàgina.';
+});
+
+</script>
+</body>
+</html>

@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Glosa.cat · Jurat</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0c0f14;
+  --surface: #141820;
+  --surface2: #1c2230;
+  --border: rgba(255,255,255,0.08);
+  --border-active: rgba(245,200,66,0.4);
+  --text: #e8eaf0;
+  --muted: rgba(232,234,240,0.38);
+  --gold: #f5c842;
+  --gold-dim: rgba(245,200,66,0.13);
+  --accent: #e05c3a;
+  --green: #3db87a;
+  --blue: #4a9eff;
+  --radius: 10px;
+  --radius-sm: 6px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;font-size:15px;}
+.app{display:flex;min-height:100vh;}
+
+.sidebar{width:255px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:50;}
+.logo{padding:1.6rem 1.3rem 1.1rem;border-bottom:1px solid var(--border);}
+.logo-title{font-family:'DM Serif Display',serif;font-size:1.5rem;color:var(--gold);}
+.logo-sub{font-size:0.68rem;color:var(--muted);letter-spacing:.15em;text-transform:uppercase;margin-top:.2rem;}
+.logo-badge{display:inline-flex;align-items:center;gap:.3rem;background:rgba(224,92,58,.14);border:1px solid rgba(224,92,58,.28);color:#e05c3a;font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;padding:.18rem .55rem;border-radius:20px;margin-top:.55rem;}
+.nav{padding:.9rem .7rem;flex:1;}
+.nav-label{font-size:.62rem;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);padding:.25rem .55rem .45rem;}
+.nav-item{display:flex;align-items:center;gap:.65rem;padding:.6rem .75rem;border-radius:var(--radius-sm);cursor:pointer;color:var(--muted);font-size:.88rem;font-weight:500;border:none;background:none;width:100%;text-align:left;transition:all .13s;}
+.nav-item:hover{background:var(--surface2);color:var(--text);}
+.nav-item.active{background:var(--gold-dim);color:var(--gold);border:1px solid var(--border-active);}
+.nav-icon{font-size:.95rem;width:1.1rem;text-align:center;}
+.nav-badge{margin-left:auto;background:var(--surface2);color:var(--muted);font-size:.63rem;padding:.1rem .4rem;border-radius:20px;font-weight:600;}
+.nav-item.active .nav-badge{background:var(--gold-dim);color:var(--gold);}
+.sidebar-footer{padding:.9rem 1.1rem;border-top:1px solid var(--border);}
+.round-chip{display:flex;align-items:center;justify-content:space-between;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:.55rem .85rem;font-size:.82rem;}
+.round-chip-label{color:var(--muted);}
+.round-chip-val{font-family:'DM Serif Display',serif;font-size:1.1rem;color:var(--gold);}
+
+/* Firebase status dot */
+.fb-status{display:flex;align-items:center;gap:.45rem;font-size:.68rem;color:var(--muted);margin-bottom:.7rem;}
+.fb-dot{width:7px;height:7px;border-radius:50%;background:#555;flex-shrink:0;transition:background .3s;}
+.fb-dot.ok{background:var(--green);}
+.fb-dot.err{background:var(--accent);}
+
+.main{margin-left:255px;flex:1;min-height:100vh;display:flex;flex-direction:column;}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:.9rem 1.8rem;border-bottom:1px solid var(--border);background:var(--surface);position:sticky;top:0;z-index:40;gap:1rem;}
+.topbar-title{font-family:'DM Serif Display',serif;font-size:1.25rem;color:var(--text);white-space:nowrap;}
+.topbar-actions{display:flex;gap:.55rem;flex-wrap:wrap;}
+
+button{cursor:pointer;font-family:'DM Sans',sans-serif;}
+.btn{display:inline-flex;align-items:center;gap:.4rem;border-radius:var(--radius-sm);font-size:.84rem;font-weight:500;padding:.48rem .95rem;transition:all .13s;border:1px solid transparent;}
+.btn-ghost{background:transparent;border-color:var(--border);color:var(--muted);}
+.btn-ghost:hover{border-color:rgba(255,255,255,.18);color:var(--text);}
+.btn-primary{background:var(--gold);color:#0c0f14;font-weight:600;}
+.btn-primary:hover{background:#ffd050;}
+.btn-success{background:rgba(61,184,122,.12);border-color:rgba(61,184,122,.3);color:var(--green);font-size:.92rem;padding:.6rem 1.3rem;}
+.btn-success:hover{background:rgba(61,184,122,.22);}
+.btn-danger{background:rgba(224,92,58,.1);border-color:rgba(224,92,58,.28);color:var(--accent);}
+.btn-danger:hover{background:rgba(224,92,58,.2);}
+
+.content{padding:1.8rem;flex:1;}
+.view{display:none;animation:fadeUp .22s ease;}
+.view.active{display:block;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(7px);}to{opacity:1;transform:translateY(0);}}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.3rem;margin-bottom:1.1rem;}
+.card-title{font-size:.67rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:.9rem;display:flex;align-items:center;gap:.5rem;}
+.card-title::after{content:'';flex:1;height:1px;background:var(--border);}
+
+.add-form{display:flex;gap:.65rem;}
+.input-field{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:'DM Sans',sans-serif;font-size:.9rem;padding:.58rem .88rem;outline:none;transition:border-color .13s;}
+.input-field::placeholder{color:var(--muted);}
+.input-field:focus{border-color:var(--border-active);}
+
+.participants-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(195px,1fr));gap:.75rem;}
+.p-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:.85rem .95rem;display:flex;align-items:center;gap:.65rem;transition:border-color .13s;animation:fadeUp .22s ease;}
+.p-card:hover{border-color:rgba(255,255,255,.14);}
+.p-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--gold-dim),rgba(74,158,255,.12));border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:.95rem;color:var(--gold);flex-shrink:0;}
+.p-info{flex:1;min-width:0;}
+.p-name{font-weight:500;font-size:.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.p-score{font-size:.72rem;color:var(--muted);margin-top:.1rem;}
+.p-delete{background:none;border:none;color:rgba(255,255,255,.13);font-size:.85rem;padding:.18rem;border-radius:4px;transition:all .13s;}
+.p-delete:hover{color:var(--accent);background:rgba(224,92,58,.1);}
+.empty-grid{text-align:center;padding:2.5rem 1rem;color:var(--muted);font-size:.9rem;grid-column:1/-1;}
+
+.scoring-layout{display:grid;grid-template-columns:250px 1fr;gap:1.3rem;align-items:start;}
+.participant-picker{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;position:sticky;top:5rem;}
+.picker-header{padding:.8rem 1rem;border-bottom:1px solid var(--border);font-size:.67rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);}
+.picker-list{max-height:68vh;overflow-y:auto;}
+.picker-list::-webkit-scrollbar{width:3px;}
+.picker-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+.picker-item{display:flex;align-items:center;gap:.65rem;padding:.65rem 1rem;cursor:pointer;transition:background .11s;border-bottom:1px solid var(--border);}
+.picker-item:hover{background:var(--surface2);}
+.picker-item.selected{background:var(--gold-dim);}
+.picker-avatar{width:28px;height:28px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.75rem;color:var(--muted);flex-shrink:0;font-family:'DM Serif Display',serif;}
+.picker-item.selected .picker-avatar{background:var(--gold-dim);border-color:var(--border-active);color:var(--gold);}
+.picker-name{font-size:.85rem;font-weight:500;flex:1;}
+.picker-item.scored .picker-name::after{content:' ✓';color:var(--green);font-size:.72rem;}
+.picker-pts{font-size:.72rem;font-weight:600;color:var(--muted);background:var(--surface2);padding:.12rem .38rem;border-radius:4px;}
+.picker-item.selected .picker-pts{color:var(--gold);background:var(--gold-dim);}
+
+.panel-header{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.1rem;}
+.panel-name{font-family:'DM Serif Display',serif;font-size:1.7rem;color:var(--text);line-height:1.1;}
+.panel-round{font-size:.73rem;color:var(--muted);margin-top:.25rem;letter-spacing:.08em;}
+.panel-total-big{text-align:right;}
+.panel-total-num{font-family:'DM Serif Display',serif;font-size:2rem;color:var(--gold);line-height:1;}
+.panel-total-of{font-size:.7rem;color:var(--muted);}
+
+.section-label{font-size:.67rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:.65rem;}
+.melody-grid{display:flex;flex-wrap:wrap;gap:.45rem;margin-bottom:1.2rem;}
+.melody-chip{display:inline-flex;align-items:center;gap:.3rem;background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:.38rem .8rem;font-size:.8rem;color:var(--muted);cursor:pointer;transition:all .13s;font-family:'DM Sans',sans-serif;}
+.melody-chip:hover{border-color:rgba(255,255,255,.18);color:var(--text);}
+.melody-chip.selected{background:rgba(74,158,255,.12);border-color:rgba(74,158,255,.4);color:var(--blue);}
+
+.rubric-grid{display:flex;flex-direction:column;gap:.65rem;margin-bottom:1.3rem;}
+.rubric-item{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:.9rem 1.1rem;display:grid;grid-template-columns:1fr auto;align-items:center;gap:1rem;transition:border-color .13s;}
+.rubric-item:hover{border-color:rgba(255,255,255,.13);}
+.rubric-name{font-weight:600;font-size:.9rem;}
+.rubric-desc{font-size:.75rem;color:var(--muted);margin-top:.18rem;}
+.rubric-score-control{display:flex;align-items:center;gap:.45rem;}
+.score-btn{width:28px;height:28px;border-radius:5px;background:var(--surface);border:1px solid var(--border);color:var(--muted);font-size:.95rem;display:flex;align-items:center;justify-content:center;transition:all .12s;padding:0;}
+.score-btn:hover{background:var(--gold-dim);border-color:var(--border-active);color:var(--gold);}
+.score-val{font-family:'DM Serif Display',serif;font-size:1.45rem;color:var(--gold);min-width:2rem;text-align:center;}
+.score-max{font-size:.65rem;color:var(--muted);text-align:center;margin-top:-.15rem;}
+
+.total-bar{background:var(--surface);border:1px solid var(--border-active);border-radius:var(--radius-sm);padding:.9rem 1.3rem;display:flex;align-items:center;justify-content:space-between;margin-bottom:.9rem;}
+.total-label{font-size:.83rem;color:var(--muted);}
+.total-val{font-family:'DM Serif Display',serif;font-size:2rem;color:var(--gold);line-height:1;}
+.total-of{font-size:.72rem;color:var(--muted);}
+.nav-btns{display:flex;gap:.55rem;}
+
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.75rem;margin-bottom:1.3rem;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:.95rem 1.1rem;}
+.stat-val{font-family:'DM Serif Display',serif;font-size:1.9rem;color:var(--gold);line-height:1;}
+.stat-label{font-size:.68rem;color:var(--muted);margin-top:.28rem;letter-spacing:.08em;text-transform:uppercase;}
+.ranking-table{width:100%;border-collapse:collapse;}
+.ranking-table th{font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:.58rem .95rem;text-align:left;border-bottom:1px solid var(--border);font-weight:500;}
+.ranking-table td{padding:.72rem .95rem;border-bottom:1px solid rgba(255,255,255,.04);font-size:.88rem;vertical-align:middle;}
+.ranking-table tr:hover td{background:rgba(255,255,255,.02);}
+.rank-score{font-family:'DM Serif Display',serif;font-size:1.35rem;color:var(--gold);}
+.round-pill{display:inline-block;background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:.13rem .42rem;font-size:.72rem;color:var(--muted);margin:0 .1rem;}
+.rank-bar-wrap{width:100px;height:4px;background:var(--border);border-radius:2px;overflow:hidden;}
+.rank-bar{height:100%;background:linear-gradient(to right,var(--gold-dim),var(--gold));border-radius:2px;transition:width .8s cubic-bezier(.4,0,.2,1);}
+
+.toast{position:fixed;bottom:1.4rem;right:1.4rem;background:var(--surface);border:1px solid var(--border-active);color:var(--text);padding:.7rem 1.1rem;border-radius:var(--radius-sm);font-size:.86rem;opacity:0;transform:translateY(7px);transition:all .22s;pointer-events:none;z-index:200;}
+.toast.show{opacity:1;transform:translateY(0);}
+</style>
+</head>
+<body>
+<div class="app">
+
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-title">Glosa<span style="color:var(--accent)">.cat</span></div>
+    <div class="logo-sub">Sistema de puntuació</div>
+    <div class="logo-badge">🔒 Jurat · Accés privat</div>
+  </div>
+  <nav class="nav">
+    <div class="nav-label">Gestió</div>
+    <button class="nav-item active" onclick="goView('participants',this)">
+      <span class="nav-icon">👥</span> Participants
+      <span class="nav-badge" id="nb-p">0</span>
+    </button>
+    <button class="nav-item" onclick="goView('puntuar',this)">
+      <span class="nav-icon">🎙</span> Puntuar
+      <span class="nav-badge" id="nb-ronda">R1</span>
+    </button>
+    <button class="nav-item" onclick="goView('ranking',this)">
+      <span class="nav-icon">🏆</span> Classificació
+      <span class="nav-badge" id="nb-scored">—</span>
+    </button>
+    <div class="nav-label" style="margin-top:.9rem">Eines</div>
+    <button class="nav-item" onclick="exportData()">
+      <span class="nav-icon">↓</span> Exportar JSON
+    </button>
+    <button class="nav-item" onclick="clearAll()">
+      <span class="nav-icon">🗑</span> Reiniciar concurs
+    </button>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="fb-status">
+      <div class="fb-dot" id="fb-dot"></div>
+      <span id="fb-label">Connectant a Firebase…</span>
+    </div>
+    <div class="round-chip">
+      <span class="round-chip-label">Ronda activa</span>
+      <span class="round-chip-val" id="side-round">1</span>
+    </div>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="topbar-title">Participants</div>
+    <div class="topbar-actions">
+      <button class="btn btn-ghost" onclick="prevRound()">← Ronda anterior</button>
+      <button class="btn btn-ghost" onclick="nextRound()">Ronda següent →</button>
+      <button class="btn btn-primary" onclick="publishRound()">✓ Publicar ronda</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- PARTICIPANTS -->
+    <div class="view active" id="view-participants">
+      <div class="card">
+        <div class="card-title">Afegir participant</div>
+        <div class="add-form">
+          <input class="input-field" id="nom-input" type="text" placeholder="Nom del participant..." maxlength="50"
+            onkeydown="if(event.key==='Enter')addParticipant()">
+          <button class="btn btn-primary" onclick="addParticipant()">+ Afegir</button>
+        </div>
+        <div style="font-size:.73rem;color:var(--muted);margin-top:.55rem">
+          Màxim 20 participants · <span id="p-count">0</span>/20 inscrits
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Participants inscrits</div>
+        <div class="participants-grid" id="participants-grid">
+          <div class="empty-grid">Encara no hi ha participants. Afegeix-ne per començar.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PUNTUAR -->
+    <div class="view" id="view-puntuar">
+      <div id="scoring-empty" style="display:none">
+        <div class="card" style="text-align:center;padding:3rem">
+          <div style="font-size:2rem;margin-bottom:1rem">🎙</div>
+          <div style="font-size:1rem;color:var(--muted)">Afegeix participants per poder puntuar.</div>
+        </div>
+      </div>
+      <div id="scoring-area" class="scoring-layout">
+        <div class="participant-picker">
+          <div class="picker-header">Selecciona participant</div>
+          <div class="picker-list" id="picker-list"></div>
+        </div>
+        <div id="scoring-panel">
+          <div class="card" style="text-align:center;padding:4rem 2rem;color:var(--muted)">
+            ← Selecciona un participant per puntuar
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RANKING -->
+    <div class="view" id="view-ranking">
+      <div class="stats-row" id="stats-row"></div>
+      <div class="card">
+        <div class="card-title">Classificació general</div>
+        <div id="ranking-area">
+          <div style="text-align:center;padding:2.5rem;color:var(--muted)">Publica una ronda per veure la classificació.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- Firebase -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyA5tGiiJJI8TbgVTlXWjjFfdiOCA5VAl6o",
+  authDomain: "glosacat.firebaseapp.com",
+  databaseURL: "https://glosacat-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "glosacat",
+  storageBucket: "glosacat.firebasestorage.app",
+  messagingSenderId: "699567100913",
+  appId: "1:699567100913:web:b0ee8f3a133e3a319dea50"
+};
+
+const app = initializeApp(firebaseConfig);
+const db  = getDatabase(app);
+const dbRef = ref(db, 'concurs');
+
+// ── Firebase status UI ────────────────────────────────────────────────────
+function setFbStatus(ok, label) {
+  const dot = document.getElementById('fb-dot');
+  const lbl = document.getElementById('fb-label');
+  dot.className = 'fb-dot ' + (ok ? 'ok' : 'err');
+  lbl.textContent = label;
+}
+
+// ── Write to Firebase ─────────────────────────────────────────────────────
+window._fbSave = function(data) {
+  const payload = {
+    participants: data.participants,
+    rounds: data.rounds,
+    confirmedRounds: data.confirmedRounds,
+    currentRound: data.currentRound,
+    lastUpdated: Date.now()
+  };
+  set(dbRef, payload)
+    .then(() => setFbStatus(true, 'Sincronitzat ✓'))
+    .catch(e => setFbStatus(false, 'Error: ' + e.message));
+};
+
+// ── Listen for remote changes (read-only sync of public data back) ─────────
+onValue(dbRef, snap => {
+  setFbStatus(true, 'Connectat ✓');
+  // We don't override local state from remote here —
+  // the jury is the single source of truth. We just confirm the connection.
+}, err => {
+  setFbStatus(false, 'Sin connexió');
+});
+
+</script>
+
+<script>
+// ── Constants ──────────────────────────────────────────────────────────────
+const MELODIES = [
+  {id:'jota',    label:'🎵 Jota'},
+  {id:'marxa',   label:'🥁 Marxa'},
+  {id:'bolero',  label:'🌀 Bolero'},
+  {id:'fandango',label:'🎸 Fandango'},
+  {id:'canco',   label:'🎶 Cançó'},
+  {id:'corrandes',label:'🪗 Corrandes'},
+  {id:'lliure',  label:'✨ Lliure'},
+];
+const RUBRICA = [
+  {id:'rima',         name:'Rima (ABAB)',       desc:'Correctesa de la rima: la 2a i 4a línies han de rimar',         max:10},
+  {id:'sillabes',     name:'Síl·labes',          desc:'Respecte de les 7 síl·labes per vers en cada glossa',           max:10},
+  {id:'ritme',        name:'Ritme i melodia',    desc:'Adaptació a la melodia i fluïdesa rítmica del cant',            max:10},
+  {id:'contingut',    name:'Contingut poètic',   desc:'Qualitat, riquesa i profunditat del contingut literari',        max:10},
+  {id:'creativitat',  name:'Creativitat',        desc:'Originalitat i imaginació en la construcció de la glossa',     max:10},
+  {id:'projeccio',    name:'Projecció vocal',    desc:'Dicció, volum i projecció de la veu durant el cant',           max:5},
+  {id:'espontaneitat',name:'Espontaneïtat',      desc:'Naturalitat i rapidesa de la improvisació en directe',         max:5},
+];
+const MAX_TOTAL = RUBRICA.reduce((s,r) => s + r.max, 0);
+const STORAGE_KEY = 'glosa_jurat_v2';
+
+// ── State ─────────────────────────────────────────────────────────────────
+let state = {participants:[], rounds:[], currentRound:1, roundScores:{}, confirmedRounds:[]};
+let selectedPid = null;
+
+// ── Persistence ───────────────────────────────────────────────────────────
+function save() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) {}
+  // Push to Firebase (function defined in the module script above)
+  if (window._fbSave) window._fbSave(state);
+}
+
+function load() {
+  try {
+    const r = localStorage.getItem(STORAGE_KEY);
+    if (r) state = {...state, ...JSON.parse(r)};
+  } catch(e) {}
+}
+
+// ── Navigation ────────────────────────────────────────────────────────────
+function goView(name, btn) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  if (btn) btn.classList.add('active');
+  const titles = {participants:'Participants', puntuar:'Puntuar Ronda', ranking:'Classificació'};
+  document.getElementById('topbar-title').textContent = titles[name];
+  if (name === 'puntuar') renderScoringView();
+  if (name === 'ranking') renderRanking();
+}
+
+function updateBadges() {
+  document.getElementById('nb-p').textContent = state.participants.length;
+  document.getElementById('nb-ronda').textContent = 'R' + state.currentRound;
+  document.getElementById('side-round').textContent = state.currentRound;
+  document.getElementById('p-count').textContent = state.participants.length;
+  const sc = state.participants.filter(p => state.roundScores[p.id]?.saved).length;
+  document.getElementById('nb-scored').textContent =
+    state.participants.length ? sc + '/' + state.participants.length : '—';
+}
+
+// ── Participants ──────────────────────────────────────────────────────────
+function addParticipant() {
+  if (state.participants.length >= 20) { showToast('⚠️ Màxim 20 participants.'); return; }
+  const inp = document.getElementById('nom-input');
+  const name = inp.value.trim();
+  if (!name) return;
+  if (state.participants.find(p => p.name.toLowerCase() === name.toLowerCase())) {
+    showToast('⚠️ Ja existeix aquest participant.'); return;
+  }
+  state.participants.push({id: Date.now().toString(36) + Math.random().toString(36).slice(2,5), name});
+  inp.value = '';
+  save(); renderParticipants(); updateBadges();
+  showToast('✓ ' + name + ' afegit');
+}
+
+function removeParticipant(id) {
+  if (!confirm('Eliminar aquest participant?')) return;
+  state.participants = state.participants.filter(p => p.id !== id);
+  delete state.roundScores[id];
+  if (selectedPid === id) selectedPid = null;
+  save(); renderParticipants(); updateBadges();
+}
+
+function renderParticipants() {
+  const g = document.getElementById('participants-grid');
+  if (!state.participants.length) {
+    g.innerHTML = '<div class="empty-grid">Encara no hi ha participants. Afegeix-ne per començar.</div>';
+    return;
+  }
+  g.innerHTML = state.participants.map(p => {
+    const tot = getTotalScore(p.id);
+    const rds = state.rounds.length;
+    return `<div class="p-card">
+      <div class="p-avatar">${p.name[0].toUpperCase()}</div>
+      <div class="p-info">
+        <div class="p-name">${esc(p.name)}</div>
+        <div class="p-score">${rds ? tot + ' pts · ' + rds + (rds===1?' ronda':' rondes') : 'Sense puntuació'}</div>
+      </div>
+      <button class="p-delete" onclick="removeParticipant('${p.id}')">✕</button>
+    </div>`;
+  }).join('');
+}
+
+// ── Scoring ───────────────────────────────────────────────────────────────
+function getOrInit(pid) {
+  if (!state.roundScores[pid]) {
+    state.roundScores[pid] = {melody:'', saved:false};
+    RUBRICA.forEach(r => { state.roundScores[pid][r.id] = Math.round(r.max / 2); });
+  }
+  return state.roundScores[pid];
+}
+function calcTotal(sc) { return RUBRICA.reduce((s,r) => s + (sc[r.id]||0), 0); }
+
+function renderScoringView() {
+  const hasP = state.participants.length > 0;
+  document.getElementById('scoring-empty').style.display = hasP ? 'none' : 'block';
+  document.getElementById('scoring-area').style.display = hasP ? 'grid' : 'none';
+  if (!hasP) return;
+  renderPickerList();
+  if (selectedPid) renderScoringPanel(selectedPid);
+}
+
+function renderPickerList() {
+  document.getElementById('picker-list').innerHTML = state.participants.map(p => {
+    const sc = state.roundScores[p.id];
+    const saved = sc && sc.saved;
+    const pts = saved ? calcTotal(sc) : '—';
+    return `<div class="picker-item ${saved?'scored':''} ${selectedPid===p.id?'selected':''}"
+      onclick="selectP('${p.id}')">
+      <div class="picker-avatar">${p.name[0].toUpperCase()}</div>
+      <div class="picker-name">${esc(p.name)}</div>
+      <div class="picker-pts">${pts}</div>
+    </div>`;
+  }).join('');
+}
+
+function selectP(pid) {
+  selectedPid = pid;
+  renderPickerList();
+  renderScoringPanel(pid);
+}
+
+function renderScoringPanel(pid) {
+  const p = state.participants.find(x => x.id === pid);
+  if (!p) return;
+  const sc = getOrInit(pid);
+  const total = calcTotal(sc);
+  document.getElementById('scoring-panel').innerHTML = `
+    <div class="card">
+      <div class="panel-header">
+        <div>
+          <div class="panel-name">${esc(p.name)}</div>
+          <div class="panel-round">Ronda ${state.currentRound} · Puntuació màxima: ${MAX_TOTAL} pts</div>
+        </div>
+        <div class="panel-total-big">
+          <div class="panel-total-num" id="hdr-total">${total}</div>
+          <div class="panel-total-of">/ ${MAX_TOTAL} pts</div>
+        </div>
+      </div>
+
+      <div class="section-label">Tipus de melodia</div>
+      <div class="melody-grid">
+        ${MELODIES.map(m => `<button class="melody-chip ${sc.melody===m.id?'selected':''}"
+          onclick="setMelody('${pid}','${m.id}',this)">${m.label}</button>`).join('')}
+      </div>
+
+      <div class="section-label">Rúbrica de valoració</div>
+      <div class="rubric-grid">
+        ${RUBRICA.map(r => `<div class="rubric-item">
+          <div>
+            <div class="rubric-name">${r.name}</div>
+            <div class="rubric-desc">${r.desc}</div>
+          </div>
+          <div class="rubric-score-control">
+            <button class="score-btn" onclick="adj('${pid}','${r.id}',-1)">−</button>
+            <div>
+              <div class="score-val" id="v-${pid}-${r.id}">${sc[r.id]}</div>
+              <div class="score-max">/ ${r.max}</div>
+            </div>
+            <button class="score-btn" onclick="adj('${pid}','${r.id}',1)">+</button>
+          </div>
+        </div>`).join('')}
+      </div>
+
+      <div class="total-bar">
+        <span class="total-label">Total ronda</span>
+        <div>
+          <span class="total-val" id="bar-total">${total}</span>
+          <span class="total-of"> / ${MAX_TOTAL}</span>
+        </div>
+      </div>
+
+      <div class="nav-btns">
+        <button class="btn btn-success" onclick="savePScore('${pid}')">✓ Guardar puntuació</button>
+        <button class="btn btn-ghost" onclick="goNext('${pid}')">Següent →</button>
+      </div>
+    </div>`;
+}
+
+function setMelody(pid, mid, el) {
+  getOrInit(pid).melody = mid;
+  el.closest('.melody-grid').querySelectorAll('.melody-chip').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function adj(pid, key, d) {
+  const sc = getOrInit(pid);
+  const r = RUBRICA.find(x => x.id === key);
+  sc[key] = Math.max(0, Math.min(r.max, sc[key] + d));
+  document.getElementById(`v-${pid}-${key}`).textContent = sc[key];
+  const tot = calcTotal(sc);
+  const h = document.getElementById('hdr-total');
+  const b = document.getElementById('bar-total');
+  if (h) h.textContent = tot;
+  if (b) b.textContent = tot;
+}
+
+function savePScore(pid) {
+  getOrInit(pid).saved = true;
+  save(); renderPickerList(); updateBadges();
+  showToast('✓ Puntuació guardada i sincronitzada');
+}
+
+function goNext(pid) {
+  const idx = state.participants.findIndex(p => p.id === pid);
+  const next = state.participants[idx + 1];
+  if (next) selectP(next.id);
+  else showToast('Ja estàs a l\'últim participant.');
+}
+
+// ── Rounds ────────────────────────────────────────────────────────────────
+function publishRound() {
+  const unsaved = state.participants.filter(p => !state.roundScores[p.id]?.saved);
+  if (unsaved.length && !confirm(`Queden ${unsaved.length} participants sense puntuar. Publicar igualment?`)) return;
+  state.rounds = state.rounds.filter(r => r.round !== state.currentRound);
+  state.rounds.push({
+    round: state.currentRound,
+    scores: state.participants.map(p => {
+      const sc = state.roundScores[p.id] || {};
+      const entry = {id: p.id, melody: sc.melody || ''};
+      RUBRICA.forEach(r => { entry[r.id] = sc[r.id] || 0; });
+      entry.total = calcTotal(entry);
+      return entry;
+    })
+  });
+  if (!state.confirmedRounds.includes(state.currentRound))
+    state.confirmedRounds.push(state.currentRound);
+  state.currentRound++;
+  state.roundScores = {};
+  selectedPid = null;
+  save(); updateBadges();
+  showToast(`✓ Ronda ${state.currentRound - 1} publicada i visible al públic!`);
+  goView('ranking', document.querySelector("button[onclick=\"goView('ranking',this)\"]"));
+}
+
+function prevRound() {
+  if (state.currentRound <= 1) return;
+  state.currentRound--;
+  state.roundScores = {};
+  const rd = state.rounds.find(r => r.round === state.currentRound);
+  if (rd) rd.scores.forEach(s => { state.roundScores[s.id] = {...s, saved:true}; });
+  selectedPid = null;
+  save(); updateBadges(); showToast('← Ronda ' + state.currentRound);
+  renderScoringView();
+}
+
+function nextRound() {
+  state.currentRound++;
+  state.roundScores = {};
+  selectedPid = null;
+  save(); updateBadges(); showToast('→ Ronda ' + state.currentRound);
+  renderScoringView();
+}
+
+// ── Ranking ───────────────────────────────────────────────────────────────
+function getTotalScore(pid) {
+  return state.rounds.reduce((s,r) => {
+    const x = r.scores.find(s => s.id === pid);
+    return s + (x ? x.total : 0);
+  }, 0);
+}
+
+function renderRanking() {
+  const sr = document.getElementById('stats-row');
+  const ra = document.getElementById('ranking-area');
+  const n = state.participants.length;
+  const rds = state.rounds.length;
+  const leader = n ? [...state.participants].sort((a,b) => getTotalScore(b.id) - getTotalScore(a.id))[0] : null;
+  sr.innerHTML = `
+    <div class="stat-card"><div class="stat-val">${n}</div><div class="stat-label">Participants</div></div>
+    <div class="stat-card"><div class="stat-val">${rds}</div><div class="stat-label">Rondes</div></div>
+    <div class="stat-card"><div class="stat-val">${MAX_TOTAL}</div><div class="stat-label">Pts/ronda</div></div>
+    <div class="stat-card"><div class="stat-val" style="font-size:${leader&&leader.name.length>8?'1rem':'1.9rem'};padding-top:.3rem">${leader ? esc(leader.name) : '—'}</div><div class="stat-label">Líder</div></div>`;
+  if (!n || !rds) {
+    ra.innerHTML = '<div style="text-align:center;padding:2.5rem;color:var(--muted)">Publica una ronda per veure la classificació.</div>';
+    return;
+  }
+  const ranked = [...state.participants].map(p => ({
+    ...p, total: getTotalScore(p.id),
+    perRound: state.rounds.map(r => { const s = r.scores.find(x => x.id === p.id); return s ? s.total : null; })
+  })).sort((a,b) => b.total - a.total);
+  const mx = ranked[0].total || 1;
+  ra.innerHTML = `<table class="ranking-table">
+    <thead><tr>
+      <th>#</th><th>Participant</th>
+      ${state.rounds.map(r => `<th>R${r.round}</th>`).join('')}
+      <th>Total</th><th></th>
+    </tr></thead>
+    <tbody>${ranked.map((p,i) => `<tr>
+      <td>${['🥇','🥈','🥉'][i] || `<span style="color:var(--muted);font-weight:600">${i+1}</span>`}</td>
+      <td style="font-weight:${i<3?600:400}">${esc(p.name)}</td>
+      ${p.perRound.map(s => `<td><span class="round-pill">${s !== null ? s : '—'}</span></td>`).join('')}
+      <td><span class="rank-score">${p.total}</span></td>
+      <td><div class="rank-bar-wrap"><div class="rank-bar" style="width:${Math.round(p.total/mx*100)}%"></div></div></td>
+    </tr>`).join('')}</tbody>
+  </table>`;
+}
+
+// ── Utils ─────────────────────────────────────────────────────────────────
+function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2600);
+}
+function clearAll() {
+  if (!confirm('Reiniciar tot el concurs? Es perdran totes les dades.')) return;
+  state = {participants:[], rounds:[], currentRound:1, roundScores:{}, confirmedRounds:[]};
+  selectedPid = null;
+  save(); renderParticipants(); updateBadges();
+  showToast('🗑 Concurs reiniciat.');
+}
+function exportData() {
+  const b = new Blob([JSON.stringify(state, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(b);
+  a.download = `glosa-${new Date().toISOString().split('T')[0]}.json`;
+  a.click();
+  showToast('↓ Exportat');
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────
+load();
+renderParticipants();
+updateBadges();
+</script>
+</body>
+</html>
